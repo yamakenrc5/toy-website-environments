@@ -54,29 +54,29 @@ jobs:
            environmentType=${{ inputs.environmentType }}
          additionalArguments: ${{env.ARG}}
     deploy:
-    needs: validate
-    environment: ${{ inputs.environmentType }}
-    runs-on: ubuntu-latest
-    outputs:
-      appServiceAppHostName: ${{ steps.deploy.outputs.appServiceAppHostName }}
-    steps:
-    - uses: actions/checkout@v3
-    - uses: azure/login@v1
-      name: Sign in to Azure
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    - uses: azure/arm-deploy@v1
-      id: deploy
-      name: Deploy Bicep file
-      with:
-        failOnStdErr: false
-        deploymentName: ${{ github.run_number }}
-        resourceGroupName: ${{ inputs.resourceGroupName }}
-        template: ./deploy/main.bicep
-        parameters: >
-          environmentType=${{ inputs.environmentType }}
+      needs: validate
+      env                                                                                                                                                       ironment: ${{ inputs.environmentType }}
+      runs-on: ubuntu-latest
+      outputs:
+        appServiceAppHostName: ${{ steps.deploy.outputs.appServiceAppHostName }}
+      steps:
+      - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        name: Sign in to Azure
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - uses: azure/arm-deploy@v1
+        id: deploy
+        name: Deploy Bicep file
+        with:
+          failOnStdErr: false
+          deploymentName: ${{ github.run_number }}
+          resourceGroupName: ${{ inputs.resourceGroupName }}
+          template: ./deploy/main.bicep
+          parameters: >
+            environmentType=${{ inputs.environmentType }}
 
     smoke-test:
      runs-on: ubuntu-latest
