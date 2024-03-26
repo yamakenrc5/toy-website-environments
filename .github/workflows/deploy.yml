@@ -53,8 +53,7 @@ jobs:
          parameters: >
            environmentType=${{ inputs.environmentType }}
          additionalArguments: ${{env.ARG}}
-
-  deploy:
+    deploy:
     needs: validate
     environment: ${{ inputs.environmentType }}
     runs-on: ubuntu-latest
@@ -79,17 +78,17 @@ jobs:
         parameters: >
           environmentType=${{ inputs.environmentType }}
 
-  smoke-test:
-    runs-on: ubuntu-latest
-    needs: deploy
-    steps:
-    - uses: actions/checkout@v3
-    - run: |
-        $container = New-PesterContainer `
-          -Path 'deploy/Website.Tests.ps1' `
-          -Data @{ HostName = '${{needs.deploy.outputs.appServiceAppHostName}}' }
-        Invoke-Pester `
-          -Container $container `
-          -CI
-      name: Run smoke tests
-      shell: pwsh
+    smoke-test:
+     runs-on: ubuntu-latest
+     needs: deploy
+     steps:
+      - uses: actions/checkout@v3
+      - run: |
+          $container = New-PesterContainer `
+            -Path 'deploy/Website.Tests.ps1' `
+            -Data @{ HostName = '${{needs.deploy.outputs.appServiceAppHostName}}' }
+          Invoke-Pester `
+            -Container $container `
+            -CI
+        name: Run smoke tests
+        shell: pwsh
