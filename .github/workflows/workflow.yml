@@ -24,7 +24,6 @@ jobs:
     with:
       environmentType: Test
       resourceGroupName: ToyWebsiteTest
-    secrets:
       creds: ${{ secrets.AZURE_TEST_CRED }}
 
   # Deploy to the production environment.
@@ -34,5 +33,4 @@ jobs:
     with:
       environmentType: Production
       resourceGroupName: ToyWebsiteProduction
-    secrets:
       creds: ${{ secrets.AZURE_PRODUCTION_CRED }}
