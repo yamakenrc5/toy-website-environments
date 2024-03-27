@@ -1,7 +1,7 @@
 name: deploy  
   
 on:  
-  workflow_dispatch:  
+  workflow_call:  
     inputs:  
       environmentType:  
         required: true  
@@ -16,7 +16,7 @@ on:
         required: false  
       AZURE_SUBSCRIPTION_ID:  
         required: false  
-  
+  workflow_dispatch:
 jobs:  
   validate:  
      runs-on: ubuntu-latest  
