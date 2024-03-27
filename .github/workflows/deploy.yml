@@ -20,15 +20,22 @@ jobs:
      runs-on: ubuntu-latest
      steps:
      - uses: actions/checkout@v3
+     - name: Set environment variable for credentials
+       run: |
+         if [[ "${{ inputs.environmentType }}" == "Production" ]]; then
+           echo "AZURE_CRED=${{ secrets.AZURE_PROD_CRED }}" >> $GITHUB_ENV
+         else
+           echo "AZURE_CRED=${{ secrets.AZURE_TEST_CRED }}" >> $GITHUB_ENV
+         fi
      - name: Sign in to Azure
        uses: azure/login@v1
        with:
-         creds: ${{ secrets.AZURE_TEST_CRED if inputs.environmentType != 'Production' else secrets.AZURE_PROD_CRED }}
+         creds: ${{ env.AZURE_CRED }}
         
      - uses: azure/arm-deploy@v1
        name: Run preflight validation
        with:
-          creds: ${{ secrets.AZURE_TEST_CRED if inputs.environmentType != 'Production' else secrets.AZURE_PROD_CRED }}
+          creds: ${{ env.AZURE_CRED }}
           deploymentName: ${{ github.run_number }}
           resourceGroupName: ${{ inputs.resourceGroupName }}
           template: ./deploy/main.bicep
@@ -44,10 +51,17 @@ jobs:
       appServiceAppHostName: ${{ steps.deploy.outputs.appServiceAppHostName }}
     steps:
     - uses: actions/checkout@v3
+    - name: Set environment variable for credentials
+      run: |
+        if [[ "${{ inputs.environmentType }}" == "Production" ]]; then
+          echo "AZURE_CRED=${{ secrets.AZURE_PROD_CRED }}" >> $GITHUB_ENV
+        else
+          echo "AZURE_CRED=${{ secrets.AZURE_TEST_CRED }}" >> $GITHUB_ENV
+        fi
     - name: Sign in to Azure
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_TEST_CRED if inputs.environmentType != 'Production' else secrets.AZURE_PROD_CRED }}
+        creds: ${{ env.AZURE_CRED }}
     - uses: azure/arm-deploy@v1
       id: deploy
       name: Deploy Bicep file
