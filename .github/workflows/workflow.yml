@@ -20,7 +20,9 @@ on:
 permissions:  
   id-token: write  
   contents: read  
-  
+env:
+  TESTCRED: ${{secrets.AZURE_TEST_CRED}}
+  PRODCRED: ${{secrets.AZURE_PROD_CRED}}  
 jobs:  
   
   # Lint the Bicep file.  

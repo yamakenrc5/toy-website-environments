@@ -17,6 +17,7 @@ on:
       AZURE_SUBSCRIPTION_ID:  
         required: false  
   workflow_dispatch:  
+
 jobs:  
   validate:  
      runs-on: ubuntu-latest  
@@ -25,7 +26,7 @@ jobs:
      - uses: azure/login@v1  
        name: Sign in to Azure  
        with:  
-        creds: ${{ secrets.AZURE_TEST_CRED }}  
+        creds: ${{$TESTCRED}}
      - name: Run preflight validation  
        if: ${{ inputs.environmentType != 'Production' }}  
        uses: azure/arm-deploy@v1  
@@ -58,7 +59,7 @@ jobs:
     - uses: azure/login@v1  
       name: Sign in to Azure  
       with:  
-        creds: ${{ secrets.AZURE_PROD_CRED }}  
+        creds: ${{$PROD_CRED }}  
     - uses: azure/arm-deploy@v1  
       id: deploy  
       name: Deploy Bicep file  
