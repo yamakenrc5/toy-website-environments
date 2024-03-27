@@ -7,10 +7,6 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  TEST-CRED: ${{secrets.AZURE_TEST_CRED}}
-  PROD-CRED: ${{secrets.AZURE_PROD_CRED}}
-
 permissions:
   id-token: write
   contents: read
@@ -28,7 +24,7 @@ jobs:
     with:
       environmentType: Test
       resourceGroupName: ToyWebsiteTest
-      creds: ${{env.TEST-CRED}}
+      creds: ${{secrets.AZURE_TEST_CRED}}
 
   # Deploy to the production environment.
   deploy-production:
@@ -37,4 +33,4 @@ jobs:
     with:
       environmentType: Production
       resourceGroupName: ToyWebsiteProduction
-      creds: ${{env.PROD_CRED}}
+      creds: ${{secrets.AZURE_PROD_CRED}}
