@@ -1,36 +1,46 @@
-name: deploy-toy-website-environments
-concurrency: toy-company
-
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-
-permissions:
-  id-token: write
-  contents: read
-
-jobs:
-
-  # Lint the Bicep file.
-  lint:
-    uses: ./.github/workflows/lint.yml
-
-  # Deploy to the test environment.
-  deploy-test:
-    uses: ./.github/workflows/deploy.yml
-    needs: lint
-    with:
-      environmentType: Test
-      resourceGroupName: ToyWebsiteTest
-      creds: ${{secrets.AZURE_TEST_CRED}}
-
-  # Deploy to the production environment.
-  deploy-production:
-    uses: ./.github/workflows/deploy.yml
-    needs: deploy-test
-    with:
-      environmentType: Production
-      resourceGroupName: ToyWebsiteProduction
-      creds: ${{secrets.AZURE_PROD_CRED}}
+name: deploy-toy-website-environments  
+concurrency: toy-company  
+  
+on:  
+  push:  
+    branches:  
+      - main  
+  workflow_dispatch:  
+    inputs:  
+      environmentType:  
+        required: true  
+        type: string  
+      resourceGroupName:  
+        required: true  
+        type: string  
+    secrets:  
+      AZURE_TEST_CRED:  
+      AZURE_PROD_CRED:  
+  
+permissions:  
+  id-token: write  
+  contents: read  
+  
+jobs:  
+  
+  # Lint the Bicep file.  
+  lint:  
+    uses: ./.github/workflows/lint.yml  
+  
+  # Deploy to the test environment.  
+  deploy-test:  
+    uses: ./.github/workflows/deploy.yml  
+    needs: lint  
+    with:  
+      environmentType: ${{ github.event.inputs.environmentType }}  
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}  
+      creds: ${{secrets.AZURE_TEST_CRED}}  
+  
+  # Deploy to the production environment.  
+  deploy-production:  
+    uses: ./.github/workflows/deploy.yml  
+    needs: deploy-test  
+    with:  
+      environmentType: ${{ github.event.inputs.environmentType }}  
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}  
+      creds: ${{secrets.AZURE_PROD_CRED}}  
