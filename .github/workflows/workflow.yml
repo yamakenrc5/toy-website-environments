@@ -5,6 +5,7 @@ on:
   push:  
     branches:  
       - main  
+  workflow_dispatch:
   workflow_call:  
     inputs:  
       environmentType:  
@@ -13,16 +14,15 @@ on:
       resourceGroupName:  
         required: true  
         type: string  
-    secrets:  
-      AZURE_TEST_CRED:  
-      AZURE_PROD_CRED:  
-  workflow_dispatch:
+  
 permissions:  
   id-token: write  
   contents: read  
-env:
-  TESTCRED: ${{secrets.AZURE_TEST_CRED}}
+  
+env:  
+  TESTCRED: ${{secrets.AZURE_TEST_CRED}}  
   PRODCRED: ${{secrets.AZURE_PROD_CRED}}  
+  
 jobs:  
   
   # Lint the Bicep file.  
@@ -36,7 +36,7 @@ jobs:
     with:  
       environmentType: ${{ github.event.inputs.environmentType }}  
       resourceGroupName: ${{ github.event.inputs.resourceGroupName }}  
-      creds: ${{$TESTCRED}}
+      creds: ${{ env.TESTCRED }}  
   
   # Deploy to the production environment.  
   deploy-production:  
@@ -45,4 +45,4 @@ jobs:
     with:  
       environmentType: ${{ github.event.inputs.environmentType }}  
       resourceGroupName: ${{ github.event.inputs.resourceGroupName }}  
-      creds: ${{$PROD_CRED}}  
+      creds: ${{ env.PRODCRED }}  
