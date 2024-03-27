@@ -2,8 +2,21 @@ $githubOrganizationName = 'yamakenrc5'
 $githubRepositoryName = 'toy-website-environments'
 $appname = "$($githubRepositoryName)-test"
 $prodappname="$($githubRepositoryName)-production"
-$testApplicationRegistration = New-AzADApplication `
--DisplayName $appname
+
+# Get all registered applications with the specified display name
+$applications = Get-AzADApplication -Filter "displayName eq '$appname'"
+
+# Remove each previous application instance before proceeding 
+foreach ($app in $applications) {
+    if ($app.AppId) {
+        Remove-AzADApplication -ApplicationId $app.AppId
+    } else {Write-Error: "AppId for the $app is not found"}
+}
+
+if (-not $testApplicationRegistration) {
+    $testApplicationRegistration = New-AzADApplication `
+    -DisplayName $appname
+    }
 
 $fedset = @{
     Name = $appname
@@ -27,4 +40,4 @@ $branchset = @{
 New-AzADAppFederatedCredential @fedset
 New-AzADAppFederatedCredential @branchset
 .\testrg.ps1
-.\createsecret.ps1
+# .\createsecret.ps1

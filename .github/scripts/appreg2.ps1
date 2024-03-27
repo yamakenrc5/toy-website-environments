@@ -5,6 +5,16 @@ $prodappname="$($githubRepositoryName)-production"
 $productionApplicationRegistration = New-AzADApplication `
 -DisplayName $appname
 
+# Get all registered applications with the specified display name
+$applications = Get-AzADApplication -Filter "displayName eq '$appname'"
+
+# Remove each previous application instance before proceeding 
+foreach ($app in $applications) {
+    if ($app.AppId) {
+        Remove-AzADApplication -ApplicationId $app.AppId
+    }
+}
+
 $productionApplicationRegistration = New-AzADApplication `
 -DisplayName "$($appname)-production"
 
@@ -28,4 +38,4 @@ $prodbrset = @{
 New-AzADAppFederatedCredential @prodset
 New-AzADAppFederatedCredential @prodbrset
 .\prodrg.ps1
-.\createsecret.ps1
+#.\createsecret.ps1

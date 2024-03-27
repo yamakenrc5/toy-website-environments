@@ -17,3 +17,8 @@ $roleset=@{
 }
 
 New-AzRoleAssignment @roleset
+
+az ad sp create-for-rbac --name $testResourceGroup.ResourceGroupName `
+                            --role $RoleDefinitionName `
+                            --scopes $testResourceGroup.ResourceId `
+                            --sdk-auth
