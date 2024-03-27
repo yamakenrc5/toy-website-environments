@@ -16,7 +16,7 @@ on:
     secrets:  
       AZURE_TEST_CRED:  
       AZURE_PROD_CRED:  
-  workflow_dispatch:  
+  workflow_dispatch:
 permissions:  
   id-token: write  
   contents: read  
