@@ -28,7 +28,7 @@ jobs:
     with:
       environmentType: Test
       resourceGroupName: ToyWebsiteTest
-      creds: ${{env.TEST_CRED}}
+      creds: ${{env.TEST-CRED}}
 
   # Deploy to the production environment.
   deploy-production:
