@@ -26,6 +26,7 @@ env:
   TEST_CRED: ${{ secrets.AZURE_TEST_CRED }}  
   PROD_CRED: ${{ secrets.AZURE_PROD_CRED }} 
   ENVIRONMENTTYPE: 'Test'
+  PRODTYPE: 'Production'
   
 jobs:  
     
@@ -60,8 +61,8 @@ jobs:
         parameters: >  
           environmentType: ${{env.ENVIRONMENTTYPE}}
         deploymentMode: Validate
-        env.EnvironmentType: 'Production'
-    - if: env.environmentType == 'Production'  
+        env.ENVIRONMENTTYPE: ${{env.PRODTYPE}}
+    - if: env.ENVIRONMENTTYPE == env.PRODTYPE  
       uses: azure/arm-deploy@v1  
       name: Run what-if  
       with:  
@@ -69,7 +70,7 @@ jobs:
         resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}  
         template: ${{ env.TEMPLATE  }}
         parameters: >  
-          environmentType=${{ inputs.environmentType }}  
+          environmentType=${{ env.ENVIRONMENTTYPE }}  
         additionalArguments: --what-if  
     
   # Deploy to the test environment.  
