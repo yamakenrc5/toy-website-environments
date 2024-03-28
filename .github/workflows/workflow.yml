@@ -32,9 +32,7 @@ jobs:
     runs-on: ubuntu-latest    
     steps:    
     - name: Deploy to test environment    
-      uses: ./.github/workflows/deploy.yml    
-      with:    
-        app-name: 'toy-website-test'    
+      run: ./.github/workflows/deploy.yml ${{ secrets.AZURE_TEST_WEBAPP_PUBLISH_PROFILE }} toy-website-test  
       
   # Deploy to the production environment.      
   deploy-production:      
@@ -42,6 +40,4 @@ jobs:
     runs-on: ubuntu-latest    
     steps:    
     - name: Deploy to production environment    
-      uses: ./.github/workflows/deploy.yml    
-      with:    
-        app-name: 'toy-website-production'  
+      run: ./.github/workflows/deploy.yml ${{ secrets.AZURE_PROD_WEBAPP_PUBLISH_PROFILE }} toy-website-production  
