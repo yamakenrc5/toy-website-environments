@@ -21,10 +21,11 @@ permissions:
   
 env:  
   TEMPLATE: deploy/main.bicep  
-  RESOURCE_GROUP: ToyWebsiteTest  
+  RESOURCEGROUP: ToyWebsiteTest  
   PROD_RESOURCEGROUP: ToyWebsiteProduction  
   TEST_CRED: ${{ secrets.AZURE_TEST_CRED }}  
-  PROD_CRED: ${{ secrets.AZURE_PROD_CRED }}  
+  PROD_CRED: ${{ secrets.AZURE_PROD_CRED }} 
+  ENVIRONMENTTYPE: ${{inputs.environmentType}} 
   
 jobs:  
     
@@ -54,17 +55,18 @@ jobs:
       name: Run preflight validation  
       with:  
         deploymentName: ${{ github.run_number }}  
-        resourceGroupName: ${{ inputs.resourceGroupName }}  
+        resourceGroupName: ${{ env.RESOURCEGROUP }}  
         template: ./deploy/main.bicep  
         parameters: >  
-          environmentType=${{ inputs.environmentType }}  
-        deploymentMode: Validate  
-    - if: inputs.environmentType == 'Production'  
+          environmentType: ${{env.ENVIRONMENTTYPE}}
+        deploymentMode: Validate
+        env.EnvironmentType: 'Production'
+    - if: env.environmentType == 'Production'  
       uses: azure/arm-deploy@v1  
       name: Run what-if  
       with:  
         failOnStdErr: false  
-        resourceGroupName: ${{ inputs.resourceGroupName }}  
+        resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}  
         template: ./deploy/main.bicep  
         parameters: >  
           environmentType=${{ inputs.environmentType }}  
@@ -82,10 +84,10 @@ jobs:
     - name: Deploy to test environment  
       uses: azure/arm-deploy@1  
       with:  
-        resource-group: ${{ env.RESOURCE_GROUP }}  
+        resource-group: ${{ env.RESOURCEGROUP }}  
         template: ${{ env.TEMPLATE }}  
         deployment-mode: 'incremental'  
-        app-name: ${{env.RESOURCE_GROUP}}  
+        app-name: ${{env.RESOURCEGROUP}}  
   
   # Deploy to the production environment.  
   deploy-production:  
