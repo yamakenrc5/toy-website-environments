@@ -44,4 +44,4 @@ jobs:
     with:  
       environmentType: ${{ github.event.inputs.environmentType }}  
       resourceGroupName: ${{ github.event.inputs.resourceGroupName }}  
-      creds: ${{ env.PRODCRED }}  
+      creds: env.PRODCRED
