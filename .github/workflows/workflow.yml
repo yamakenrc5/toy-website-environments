@@ -26,12 +26,12 @@ jobs:
     
   # Lint the Bicep file.    
   lint:    
-    uses: ./.github/workflows/lint.yml@main  
+    uses: ./.github/workflows/lint.yml 
     
   # Deploy to the test environment.    
   deploy-test:    
     needs: lint  
-    uses: ./.github/workflows/deploy.yml@main  
+    uses: ./.github/workflows/deploy.yml 
     env:  
       AZURE_CRED: ${{ secrets.AZURE_TEST_CRED }}  
     with:    
@@ -41,7 +41,7 @@ jobs:
   # Deploy to the production environment.    
   deploy-production:    
     needs: deploy-test    
-    uses: ./.github/workflows/deploy.yml@main  
+    uses: ./.github/workflows/deploy.yml  
     env:  
       AZURE_CRED: ${{ secrets.AZURE_PROD_CRED }}  
     with:    
