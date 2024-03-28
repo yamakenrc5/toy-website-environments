@@ -2,7 +2,7 @@
 # file name, version, description, usage, design tips
 # params and vars
 $datetime = (Get-Date -Format 'yyyy-MMM-dd, HH:mm:ss')
-$msgbody = 'amend deploy.yml'
+$msgbody = 'amend lint.yml'
 $commitmessage = "$msgbody at $datetime"
 $addtorepository = '.' #'deploy/azure-pipelines.yml'
 #command body
