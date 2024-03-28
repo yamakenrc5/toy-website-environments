@@ -13,9 +13,10 @@ on:
       resourceGroupName:  
         required: true  
         type: string  
-    secrets:  
-      AZURE_TEST_CRED:  
-      AZURE_PROD_CRED:  
+  
+env:  
+  TESTCRED: ${{ secrets.AZURE_TEST_CRED }}  
+  PRODCRED: ${{ secrets.AZURE_PROD_CRED }}  
   
 permissions:  
   id-token: write  
@@ -34,7 +35,7 @@ jobs:
     with:  
       environmentType: ${{ github.event.inputs.environmentType }}  
       resourceGroupName: ${{ github.event.inputs.resourceGroupName }}  
-      creds: ${{ secrets.AZURE_TEST_CRED }}  
+      creds: env.TESTCRED
   
   # Deploy to the production environment.  
   deploy-production:  
@@ -43,4 +44,4 @@ jobs:
     with:  
       environmentType: ${{ github.event.inputs.environmentType }}  
       resourceGroupName: ${{ github.event.inputs.resourceGroupName }}  
-      creds: ${{ secrets.AZURE_PROD_CRED }}  
+      creds: ${{ env.PRODCRED }}  
