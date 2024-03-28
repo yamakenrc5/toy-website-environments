@@ -26,24 +26,28 @@ jobs:
     
   # Lint the Bicep file.    
   lint:    
-    uses: ./lint.yml@v1  
+    uses: ./.github/workflows/lint.yml  
     
   # Deploy to the test environment.    
   deploy-test:    
     needs: lint  
-    uses: ./deploy.yml@v1  
+    runs-on: ubuntu-latest  
     env:  
       AZURE_CRED: ${{ secrets.AZURE_TEST_CRED }}  
-    with:    
-      environmentType: 'Test'  
-      resourceGroupName: 'ToyWebsiteTest'  
+    steps:  
+    - uses: ./.github/workflows/deploy.yml  
+      with:    
+        environmentType: 'Test'  
+        resourceGroupName: 'ToyWebsiteTest'  
     
   # Deploy to the production environment.    
   deploy-production:    
     needs: deploy-test    
-    uses: ./deploy.yml@v1  
+    runs-on: ubuntu-latest  
     env:  
       AZURE_CRED: ${{ secrets.AZURE_PROD_CRED }}  
-    with:    
-      environmentType: 'Production'  
-      resourceGroupName: 'ToyWebsiteProduction'  
+    steps:  
+    - uses: ./.github/workflows/deploy.yml  
+      with:    
+        environmentType: 'Production'  
+        resourceGroupName: 'ToyWebsiteProduction'  
