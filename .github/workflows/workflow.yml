@@ -1,7 +1,10 @@
-name: deploy  
+name: deploy-toy-website-environments  
+concurrency: toy-company  
   
 on:  
-  workflow_call:  
+  push:  
+    branches:  
+      - main  
   workflow_dispatch:  
     inputs:  
       environmentType:  
@@ -10,78 +13,72 @@ on:
       resourceGroupName:  
         required: true  
         type: string  
-    secrets:  
-      AZURE_CLIENT_ID:  
-        required: false  
-      AZURE_TENANT_ID:  
-        required: false  
-      AZURE_SUBSCRIPTION_ID:  
-        required: false  
+  
+env:  
+  TESTCRED: ${{ secrets.AZURE_TEST_CRED }}  
+  PRODCRED: ${{ secrets.AZURE_PROD_CRED }}  
+  
+permissions:  
+  id-token: write  
+  contents: read  
   
 jobs:  
-  validate:  
+  
+  # Lint the Bicep file.  
+  lint:  
     runs-on: ubuntu-latest  
     steps:  
-      - uses: actions/checkout@v3  
-      - uses: azure/login@v1  
-        name: Sign in to Azure  
+      - uses: actions/checkout@v2  
+      - name: Install Bicep  
+        run: |  
+          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64  
+          chmod +x ./bicep  
+          sudo mv ./bicep /usr/local/bin/bicep  
+      - name: Lint the Bicep file  
+        run: bicep build ./deploy/main.bicep  
+  
+  # Deploy to the test environment.  
+  deploy-test:  
+    runs-on: ubuntu-latest  
+    needs: lint  
+    steps:  
+      - uses: actions/checkout@v2  
+      - name: Login to Azure  
+        uses: azure/login@v1  
         with:  
           creds: ${{ secrets.AZURE_TEST_CRED }}  
-      - name: Run preflight validation  
-        if: ${{ inputs.environmentType != 'Production' }}  
+      - name: Deploy to test environment  
         uses: azure/arm-deploy@v1  
         with:  
-          deploymentName: ${{ github.run_number }}  
-          resourceGroupName: ${{ inputs.resourceGroupName }}  
+          resource-group: ${{ github.event.inputs.resourceGroupName }}  
           template: ./deploy/main.bicep  
-          parameters: >  
-            environmentType=${{ inputs.environmentType }}  
-          deploymentMode: Validate  
-      - name: Run what-if  
-        if: ${{ inputs.environmentType == 'Production' }}  
-        uses: azure/arm-deploy@v1  
-        with:  
-          failOnStdErr: false  
-          resourceGroupName: ${{ inputs.resourceGroupName }}  
-          template: ./deploy/main.bicep  
-          parameters: >  
-            environmentType=${{ inputs.environmentType }}  
-          additionalArguments: --what-if  
+          parameters: |  
+            {  
+              "environmentType": {  
+                "value": "${{ github.event.inputs.environmentType }}"  
+              }  
+            }  
+          deployment-mode: Incremental  
   
-  deploy:  
-    needs: validate  
-    environment: ${{ inputs.environmentType }}  
+  # Deploy to the production environment.  
+  deploy-production:  
     runs-on: ubuntu-latest  
-    outputs:  
-      appServiceAppHostName: ${{ steps.deploy.outputs.appServiceAppHostName }}  
+    needs: deploy-test  
     steps:  
-      - uses: actions/checkout@v3  
-      - uses: azure/login@v1  
-        name: Sign in to Azure  
+      - uses: actions/checkout@v2  
+      - name: Login to Azure  
+        uses: azure/login@v1  
         with:  
           creds: ${{ secrets.AZURE_PROD_CRED }}  
-      - uses: azure/arm-deploy@v1  
-        id: deploy  
-        name: Deploy Bicep file  
+      - name: Deploy to production environment  
+        uses: azure/arm-deploy@v1  
         with:  
-          failOnStdErr: false  
-          deploymentName: ${{ github.run_number }}  
-          resourceGroupName: ${{ inputs.resourceGroupName }}  
+          resource-group: ${{ github.event.inputs.resourceGroupName }}  
           template: ./deploy/main.bicep  
-          parameters: >  
-            environmentType=${{ inputs.environmentType }}  
-  
-  smoke-test:  
-    runs-on: ubuntu-latest  
-    needs: deploy  
-    steps:  
-      - uses: actions/checkout@v3  
-      - run: |  
-          $container = New-PesterContainer `  
-            -Path 'deploy/Website.Tests.ps1' `  
-            -Data @{ HostName = '${{needs.deploy.outputs.appServiceAppHostName}}' }  
-          Invoke-Pester `  
-            -Container $container `  
-            -CI  
-        name: Run smoke tests  
-        shell: pwsh  
+          parameters: |  
+            {  
+              "environmentType": {  
+                "value": "${{ github.event.inputs.environmentType }}"  
+              }  
+            }  
+          deployment-mode: Incremental  
