@@ -32,7 +32,36 @@ jobs:
     steps:    
     - name: Lint Bicep file    
       run: ./.github/workflows/lint.yml  
-    
+  validate:
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        name: Sign in to Azure
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - if: inputs.environmentType != 'Production'
+        uses: azure/arm-deploy@v1
+        name: Run preflight validation
+        with:
+          deploymentName: ${{ github.run_number }}
+          resourceGroupName: ${{ inputs.resourceGroupName }}
+          template: ./deploy/main.bicep
+          parameters: >
+            environmentType=${{ inputs.environmentType }}
+          deploymentMode: Validate
+      - if: inputs.environmentType == 'Production'
+        uses: azure/arm-deploy@v1
+        name: Run what-if
+        with:
+          failOnStdErr: false
+          resourceGroupName: ${{ inputs.resourceGroupName }}
+          template: ./deploy/main.bicep
+          parameters: >
+            environmentType=${{ inputs.environmentType }}
+          additionalArguments: --what-if   
   # Deploy to the test environment.      
   deploy-test:      
     needs: lint      
