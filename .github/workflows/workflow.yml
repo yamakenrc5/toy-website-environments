@@ -35,7 +35,7 @@ jobs:
     with:  
       environmentType: ${{ github.event.inputs.environmentType }}  
       resourceGroupName: ${{ github.event.inputs.resourceGroupName }}  
-      creds: env.TESTCRED
+      creds: secrets.AZURE_TEST_CRED
   
   # Deploy to the production environment.  
   deploy-production:  
@@ -44,4 +44,4 @@ jobs:
     with:  
       environmentType: ${{ github.event.inputs.environmentType }}  
       resourceGroupName: ${{ github.event.inputs.resourceGroupName }}  
-      creds: env.PRODCRED
+      creds: secrets.AZURE_PROD_CRED
