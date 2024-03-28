@@ -21,7 +21,9 @@ permissions:
 env:
   TEMPLATE: deploy/main.bicep
   RESOURCE_GROUP: ToyWebsite-test
-  PROD_RESOURCEGROUP: ToyWebsite-Production      
+  PROD_RESOURCEGROUP: ToyWebsite-Production
+  TEST_CRED: secret.AZURE_TEST_CRED
+  PROD_CRED: secret.AZURE_PROD_CRED      
 jobs:      
       
   # Lint the Bicep file.    
@@ -39,12 +41,12 @@ jobs:
     - name: Login to Azure      
       uses: azure/login@v1      
       with:      
-        creds: ${{ secret.AZURE_TEST_CRED }}      
+        creds: ${{ env.TEST_CRED }}      
     - name: Deploy to test environment      
       uses: azure/arm-deploy@1      
       with:      
         resource-group: ${{ env.RESOURCE_GROUP }}      
-        template: ${{ env.TEMPLATE_FILE }}      
+        template: ${{ env.TEMPLATE }}      
         deployment-mode: 'incremental'      
         app-name: ${{env.RESOURCE_GROUP}}      
       
