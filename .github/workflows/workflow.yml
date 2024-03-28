@@ -31,31 +31,19 @@ jobs:
   # Deploy to the test environment.  
   deploy-test:  
     needs: lint
-    runs-on: ubuntu-latest
-    steps:  
-      - uses: actions/checkout@v2  
-      - name: Login to Azure  
-        uses: azure/login@v1  
-        with:  
-          creds: ${{ env.TESTCRED }}  
-      - name: Deploy to test environment  
-        uses: ./.github/workflows/deploy.yml
-        with:  
-          environmentType: 'Test'
-          resourceGroupName: 'ToyWebsiteTest'
+    uses: ./.github/workflows/deploy.yml@main
+    secrets:
+      AZURE_CRED: ${{ secrets.AZURE_TEST_CRED }}
+    with:  
+      environmentType: 'Test'
+      resourceGroupName: 'ToyWebsiteTest'
   
   # Deploy to the production environment.  
   deploy-production:  
     needs: deploy-test  
-    runs-on: ubuntu-latest  
-    steps:  
-      - uses: actions/checkout@v2  
-      - name: Login to Azure  
-        uses: azure/login@v1  
-        with:  
-          creds: ${{ env.PRODCRED }}  
-      - name: Deploy to production environment  
-        uses: ./.github/workflows/deploy.yml
-        with:  
-          environmentType: 'Production'
-          resourceGroupName: 'ToyWebsiteProduction'
+    uses: ./.github/workflows/deploy.yml@main
+    secrets:
+      AZURE_CRED: ${{ secrets.AZURE_PROD_CRED }}
+    with:  
+      environmentType: 'Production'
+      resourceGroupName: 'ToyWebsiteProduction'
