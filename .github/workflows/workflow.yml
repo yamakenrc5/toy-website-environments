@@ -39,46 +39,32 @@ jobs:
   
   # Deploy to the test environment.  
   deploy-test:  
-    runs-on: ubuntu-latest  
-    needs: lint  
+    needs: lint
+    runs-on: ubuntu-latest
     steps:  
       - uses: actions/checkout@v2  
       - name: Login to Azure  
         uses: azure/login@v1  
         with:  
-          creds: ${{ secrets.AZURE_TEST_CRED }}  
+          creds: ${{ env.TESTCRED }}  
       - name: Deploy to test environment  
-        uses: azure/arm-deploy@v1  
+        uses: ./.github/workflows/deploy.yml
         with:  
-          resource-group: ${{ github.event.inputs.resourceGroupName }}  
-          template: ./deploy/main.bicep  
-          parameters: |  
-            {  
-              "environmentType": {  
-                "value": "${{ github.event.inputs.environmentType }}"  
-              }  
-            }  
-          deployment-mode: Incremental  
+          environmentType: 'Test'
+          resourceGroupName: 'ToyWebsiteTest'
   
   # Deploy to the production environment.  
   deploy-production:  
-    runs-on: ubuntu-latest  
     needs: deploy-test  
+    runs-on: ubuntu-latest  
     steps:  
       - uses: actions/checkout@v2  
       - name: Login to Azure  
         uses: azure/login@v1  
         with:  
-          creds: ${{ secrets.AZURE_PROD_CRED }}  
+          creds: ${{ env.PRODCRED }}  
       - name: Deploy to production environment  
-        uses: azure/arm-deploy@v1  
+        uses: ./.github/workflows/deploy.yml
         with:  
-          resource-group: ${{ github.event.inputs.resourceGroupName }}  
-          template: ./deploy/main.bicep  
-          parameters: |  
-            {  
-              "environmentType": {  
-                "value": "${{ github.event.inputs.environmentType }}"  
-              }  
-            }  
-          deployment-mode: Incremental  
+          environmentType: 'Production'
+          resourceGroupName: 'ToyWebsiteProduction'
