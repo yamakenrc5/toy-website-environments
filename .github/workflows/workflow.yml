@@ -1,75 +1,47 @@
-name: deploy-toy-website-environments    
-concurrency: toy-company    
-    
-on:    
-  push:    
-    branches:    
-      - main    
-  workflow_dispatch:    
-    inputs:    
-      environmentType:    
-        required: true    
-        type: string    
-      resourceGroupName:    
-        required: true    
-        type: string    
-    
-env:    
-  TESTCRED: ${{ secrets.AZURE_TEST_CRED }}    
-  PRODCRED: ${{ secrets.AZURE_PROD_CRED }}    
-    
-permissions:    
-  id-token: write    
-  contents: read    
-    
-jobs:    
-    
+name: deploy-toy-website-environments      
+concurrency: toy-company      
+      
+on:      
+  push:      
+    branches:      
+      - main  
+  workflow_call:  
+  workflow_dispatch:      
+    inputs:      
+      environmentType:      
+        required: true      
+        type: string      
+      resourceGroupName:      
+        required: true      
+        type: string      
+      
+permissions:      
+  id-token: write      
+  contents: read      
+      
+jobs:      
+      
   # Lint the Bicep file.    
   lint:    
     runs-on: ubuntu-latest  
-    steps:  
-    - name: Checkout  
-      uses: actions/checkout@v2  
-    - name: Lint Bicep file  
-      uses: Azure/bicep@v1  
-      with:  
-        command: 'build'  
-        args: '--file ./main.bicep'  
+    uses: ./.github/workflows/lint.yml  
     
-  # Deploy to the test environment.    
-  deploy-test:    
-    needs: lint  
-    runs-on: ubuntu-latest  
-    steps:  
-    - name: Checkout  
-      uses: actions/checkout@v2  
-    - name: Login to Azure  
-      uses: azure/login@v1  
-      with:  
-        creds: ${{ secrets.AZURE_TEST_CRED }}  
-    - name: Deploy to test environment  
-      uses: Azure/webapps-deploy@v2  
-      with:  
-        app-name: 'toy-website-test'  
-        package: './toy-website.zip'  
-    env:  
-      RESOURCE_GROUP: ${{ secrets.AZURE_TEST_RESOURCE_GROUP }}  
-    
-  # Deploy to the production environment.    
-  deploy-production:    
-    needs: deploy-test    
-    runs-on: ubuntu-latest  
-    steps:  
-    - name: Checkout  
-      uses: actions/checkout@v2  
-    - name: Login to Azure  
-      uses: azure/login@v1  
-      with:  
-        creds: ${{ secrets.AZURE_PROD_CRED }}  
-    - name: Deploy to production environment  
-      uses: Azure/webapps-deploy@v2  
-      with:  
+  # Deploy to the test environment.      
+  deploy-test:      
+    needs: lint      
+    runs-on: ubuntu-latest    
+    steps:    
+    - name: Deploy to test environment    
+      uses: ./.github/workflows/deploy.yml    
+      with:    
+        app-name: 'toy-website-test'    
+      
+  # Deploy to the production environment.      
+  deploy-production:      
+    needs: deploy-test      
+    runs-on: ubuntu-latest    
+    steps:    
+    - name: Deploy to production environment    
+      uses: ./.github/workflows/deploy.yml    
+      with:    
         app-name: 'toy-website-production'  
-        package: './toy-website.zip'  
-    env:  
-      RESOURCE_GROUP: ${{ secrets.AZURE_PROD_RESOURCE_GROUP }}  
