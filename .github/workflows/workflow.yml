@@ -25,7 +25,7 @@ env:
   PROD_RESOURCEGROUP: ToyWebsiteProduction  
   TEST_CRED: ${{ secrets.AZURE_TEST_CRED }}  
   PROD_CRED: ${{ secrets.AZURE_PROD_CRED }} 
-  ENVIRONMENTTYPE: ${{inputs.environmentType}} 
+  ENVIRONMENTTYPE: 'Test'
   
 jobs:  
     
@@ -50,7 +50,7 @@ jobs:
       name: Sign in to Azure  
       with:  
         creds: ${{ env.TEST_CRED }}  
-    - if: inputs.environmentType != 'Production'  
+    - if: env.ENVIRONMENTTYPE != 'Production'  
       uses: azure/arm-deploy@v1  
       name: Run preflight validation  
       with:  
@@ -67,7 +67,7 @@ jobs:
       with:  
         failOnStdErr: false  
         resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}  
-        template: ./deploy/main.bicep  
+        template: ${{ env.TEMPLATE  }}
         parameters: >  
           environmentType=${{ inputs.environmentType }}  
         additionalArguments: --what-if  
