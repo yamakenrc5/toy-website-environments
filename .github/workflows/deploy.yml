@@ -84,4 +84,4 @@ jobs:
             -Container $container `  
             -CI  
         name: Run smoke tests  
-        shell: pwsh  
+        shell: pwsh

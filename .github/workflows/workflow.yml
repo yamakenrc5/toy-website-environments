@@ -26,16 +26,7 @@ jobs:
   
   # Lint the Bicep file.  
   lint:  
-    runs-on: ubuntu-latest  
-    steps:  
-      - uses: actions/checkout@v2  
-      - name: Install Bicep  
-        run: |  
-          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64  
-          chmod +x ./bicep  
-          sudo mv ./bicep /usr/local/bin/bicep  
-      - name: Lint the Bicep file  
-        run: bicep build ./deploy/main.bicep  
+    uses: ./.github/workflows/lint.yml
   
   # Deploy to the test environment.  
   deploy-test:  
