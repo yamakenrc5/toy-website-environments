@@ -21,8 +21,8 @@ permissions:
   
 env:  
   TEMPLATE: deploy/main.bicep  
-  RESOURCE_GROUP: ToyWebsite-test  
-  PROD_RESOURCEGROUP: ToyWebsite-Production  
+  RESOURCE_GROUP: ToyWebsiteTest  
+  PROD_RESOURCEGROUP: ToyWebsiteProduction  
   TEST_CRED: ${{ secrets.AZURE_TEST_CRED }}  
   PROD_CRED: ${{ secrets.AZURE_PROD_CRED }}  
   
