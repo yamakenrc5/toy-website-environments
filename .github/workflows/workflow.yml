@@ -62,7 +62,7 @@ jobs:
           environmentType: ${{env.ENVIRONMENTTYPE}}
         deploymentMode: Validate
         env.ENVIRONMENTTYPE: ${{env.PRODTYPE}}
-    - if: env.ENVIRONMENTTYPE == env.PRODTYPE  
+    - if: env.ENVIRONMENTTYPE != env.PRODTYPE  
       uses: azure/arm-deploy@v1  
       name: Run what-if  
       with:  
@@ -70,7 +70,7 @@ jobs:
         resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}  
         template: ${{ env.TEMPLATE  }}
         parameters: >  
-          environmentType=${{ env.ENVIRONMENTTYPE }}  
+          environmentType=${{ env.PRODTYPE }}  
         additionalArguments: --what-if  
     
   # Deploy to the test environment.  
