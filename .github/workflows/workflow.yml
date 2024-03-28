@@ -58,7 +58,7 @@ jobs:
     - name: Login to Azure      
       uses: azure/login@v1      
       with:      
-        creds: ${{ secrets.AZURE_PROD_CRED }}      
+        creds: ${{ env.PROD_CRED }}      
     - name: Deploy to production environment      
       uses: azure/arm-deploy@1      
       with:      
