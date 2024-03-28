@@ -5,8 +5,7 @@ on:
   push:  
     branches:  
       - main  
-  workflow_dispatch:
-  workflow_call:  
+  workflow_dispatch:  
     inputs:  
       environmentType:  
         required: true  
@@ -14,14 +13,13 @@ on:
       resourceGroupName:  
         required: true  
         type: string  
+    secrets:  
+      AZURE_TEST_CRED:  
+      AZURE_PROD_CRED:  
   
 permissions:  
   id-token: write  
   contents: read  
-  
-# env:  
-#   TESTCRED: ${{secrets.AZURE_TEST_CRED}}  
-#   PRODCRED: ${{secrets.AZURE_PROD_CRED}}  
   
 jobs:  
   
@@ -36,7 +34,7 @@ jobs:
     with:  
       environmentType: ${{ github.event.inputs.environmentType }}  
       resourceGroupName: ${{ github.event.inputs.resourceGroupName }}  
-      creds: ${{secrets.AZURE_TEST_CRED }}  
+      creds: ${{ secrets.AZURE_TEST_CRED }}  
   
   # Deploy to the production environment.  
   deploy-production:  
