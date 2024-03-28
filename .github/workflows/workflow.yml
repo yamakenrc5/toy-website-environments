@@ -18,26 +18,49 @@ on:
 permissions:      
   id-token: write      
   contents: read      
-      
+env:
+  TEMPLATE: deploy/main.bicep
+  RESOURCE_GROUP: ToyWebsite-test
+  PROD_RESOURCEGROUP: ToyWebsite-Production      
 jobs:      
       
   # Lint the Bicep file.    
   lint:    
     runs-on: ubuntu-latest  
-    uses: ./.github/workflows/lint.yml  
+    steps:    
+    - name: Lint Bicep file    
+      run: ./.github/workflows/lint.yml  
     
   # Deploy to the test environment.      
   deploy-test:      
     needs: lint      
     runs-on: ubuntu-latest    
     steps:    
-    - name: Deploy to test environment    
-      run: ./.github/workflows/deploy.yml ${{ secrets.AZURE_TEST_WEBAPP_PUBLISH_PROFILE }} toy-website-test  
+    - name: Login to Azure      
+      uses: azure/login@v1      
+      with:      
+        creds: ${{ secret.AZURE_TEST_CRED }}      
+    - name: Deploy to test environment      
+      uses: azure/arm-deploy@1      
+      with:      
+        resource-group: ${{ env.RESOURCE_GROUP }}      
+        template: ${{ env.TEMPLATE_FILE }}      
+        deployment-mode: 'incremental'      
+        app-name: ${{env.RESOURCE_GROUP}}      
       
   # Deploy to the production environment.      
   deploy-production:      
     needs: deploy-test      
     runs-on: ubuntu-latest    
     steps:    
-    - name: Deploy to production environment    
-      run: ./.github/workflows/deploy.yml ${{ secrets.AZURE_PROD_WEBAPP_PUBLISH_PROFILE }} toy-website-production  
+    - name: Login to Azure      
+      uses: azure/login@v1      
+      with:      
+        creds: ${{ secrets.AZURE_PROD_CRED }}      
+    - name: Deploy to production environment      
+      uses: azure/arm-deploy@1      
+      with:      
+        resource-group: ${{ env.PROD_RESOURCEGROUP }}      
+        template: ${{ env.TEMPLATE }}      
+        deployment-mode: 'incremental'      
+        app-name: ${{ env.PROD_RESOURCEGROUP }}            
