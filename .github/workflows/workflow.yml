@@ -46,4 +46,4 @@ jobs:
       AZURE_CRED: ${{ secrets.AZURE_PROD_CRED }}  
     with:    
       environmentType: 'Production'  
-      resourceGroupName: 'ToyWebsiteProduction'  
+      resourceGroupName: 'ToyWebsiteProduction' 
