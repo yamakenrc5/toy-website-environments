@@ -23,4 +23,4 @@ jobs:
   
     - name: Lint code  
       run: |  
-        az bicep build --file main.bicep  
+        az bicep build --file deploy/main.bicep  
