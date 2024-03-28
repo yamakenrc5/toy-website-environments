@@ -10,6 +10,17 @@ jobs:
     steps:  
     - uses: actions/checkout@v2  
   
+    - name: Setup Azure CLI  
+      uses: azure/setup-azure-cli@v1  
+      with:  
+        install-version: latest  
+  
+    - name: Install Bicep CLI  
+      run: |  
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64  
+        chmod +x ./bicep  
+        sudo mv ./bicep /usr/local/bin/bicep  
+  
     - name: Lint code  
       run: |  
         az bicep build --file main.bicep  
