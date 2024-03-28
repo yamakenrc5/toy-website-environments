@@ -1,97 +1,100 @@
-name: deploy-toy-website-environments      
-concurrency: toy-company      
-      
-on:      
-  push:      
-    branches:      
+name: deploy-toy-website-environments  
+concurrency: toy-company  
+  
+on:  
+  push:  
+    branches:  
       - main  
   workflow_call:  
-  workflow_dispatch:      
-    inputs:      
-      environmentType:      
-        required: true      
-        type: string      
-      resourceGroupName:      
-        required: true      
-        type: string      
-      
-permissions:      
-  id-token: write      
-  contents: read      
-env:
-  TEMPLATE: deploy/main.bicep
-  RESOURCE_GROUP: ToyWebsite-test
-  PROD_RESOURCEGROUP: ToyWebsite-Production
-  TEST_CRED: secret.AZURE_TEST_CRED
-  PROD_CRED: secret.AZURE_PROD_CRED      
-jobs:      
-      
-  # Lint the Bicep file.    
-  lint:    
+  workflow_dispatch:  
+    inputs:  
+      environmentType:  
+        required: true  
+        type: string  
+      resourceGroupName:  
+        required: true  
+        type: string  
+  
+permissions:  
+  id-token: write  
+  contents: read  
+  
+env:  
+  TEMPLATE: deploy/main.bicep  
+  RESOURCE_GROUP: ToyWebsite-test  
+  PROD_RESOURCEGROUP: ToyWebsite-Production  
+  TEST_CRED: ${{ secrets.AZURE_TEST_CRED }}  
+  PROD_CRED: ${{ secrets.AZURE_PROD_CRED }}  
+  
+jobs:  
+    
+  # Lint the Bicep file.  
+  lint:  
     runs-on: ubuntu-latest  
-    steps:    
-    - name: Lint Bicep file    
+    steps:  
+    - name: Lint Bicep file  
       run: ./.github/workflows/lint.yml  
-  validate:
-      runs-on: ubuntu-latest
-      steps:
-      - uses: actions/checkout@v3
-      - uses: azure/login@v1
-        name: Sign in to Azure
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - if: inputs.environmentType != 'Production'
-        uses: azure/arm-deploy@v1
-        name: Run preflight validation
-        with:
-          deploymentName: ${{ github.run_number }}
-          resourceGroupName: ${{ inputs.resourceGroupName }}
-          template: ./deploy/main.bicep
-          parameters: >
-            environmentType=${{ inputs.environmentType }}
-          deploymentMode: Validate
-      - if: inputs.environmentType == 'Production'
-        uses: azure/arm-deploy@v1
-        name: Run what-if
-        with:
-          failOnStdErr: false
-          resourceGroupName: ${{ inputs.resourceGroupName }}
-          template: ./deploy/main.bicep
-          parameters: >
-            environmentType=${{ inputs.environmentType }}
-          additionalArguments: --what-if   
-  # Deploy to the test environment.      
-  deploy-test:      
-    needs: lint      
-    runs-on: ubuntu-latest    
-    steps:    
-    - name: Login to Azure      
-      uses: azure/login@v1      
-      with:      
-        creds: ${{ env.TEST_CRED }}      
-    - name: Deploy to test environment      
-      uses: azure/arm-deploy@1      
-      with:      
-        resource-group: ${{ env.RESOURCE_GROUP }}      
-        template: ${{ env.TEMPLATE }}      
-        deployment-mode: 'incremental'      
-        app-name: ${{env.RESOURCE_GROUP}}      
-      
-  # Deploy to the production environment.      
-  deploy-production:      
-    needs: deploy-test      
-    runs-on: ubuntu-latest    
-    steps:    
-    - name: Login to Azure      
-      uses: azure/login@v1      
-      with:      
-        creds: ${{ env.PROD_CRED }}      
-    - name: Deploy to production environment      
-      uses: azure/arm-deploy@1      
-      with:      
-        resource-group: ${{ env.PROD_RESOURCEGROUP }}      
-        template: ${{ env.TEMPLATE }}      
-        deployment-mode: 'incremental'      
-        app-name: ${{ env.PROD_RESOURCEGROUP }}            
+    
+  # Validate the Bicep file.  
+  validate:  
+    runs-on: ubuntu-latest  
+    steps:  
+    - uses: actions/checkout@v3  
+    - uses: azure/login@v1  
+      name: Sign in to Azure  
+      with:  
+        creds: ${{ secrets.AZURE_TEST_CRED }}  
+    - if: inputs.environmentType != 'Production'  
+      uses: azure/arm-deploy@v1  
+      name: Run preflight validation  
+      with:  
+        deploymentName: ${{ github.run_number }}  
+        resourceGroupName: ${{ inputs.resourceGroupName }}  
+        template: ./deploy/main.bicep  
+        parameters: >  
+          environmentType=${{ inputs.environmentType }}  
+        deploymentMode: Validate  
+    - if: inputs.environmentType == 'Production'  
+      uses: azure/arm-deploy@v1  
+      name: Run what-if  
+      with:  
+        failOnStdErr: false  
+        resourceGroupName: ${{ inputs.resourceGroupName }}  
+        template: ./deploy/main.bicep  
+        parameters: >  
+          environmentType=${{ inputs.environmentType }}  
+        additionalArguments: --what-if  
+    
+  # Deploy to the test environment.  
+  deploy-test:  
+    needs: lint  
+    runs-on: ubuntu-latest  
+    steps:  
+    - name: Login to Azure  
+      uses: azure/login@v1  
+      with:  
+        creds: ${{ env.TEST_CRED }}  
+    - name: Deploy to test environment  
+      uses: azure/arm-deploy@1  
+      with:  
+        resource-group: ${{ env.RESOURCE_GROUP }}  
+        template: ${{ env.TEMPLATE }}  
+        deployment-mode: 'incremental'  
+        app-name: ${{env.RESOURCE_GROUP}}  
+  
+  # Deploy to the production environment.  
+  deploy-production:  
+    needs: deploy-test  
+    runs-on: ubuntu-latest  
+    steps:  
+    - name: Login to Azure  
+      uses: azure/login@v1  
+      with:  
+        creds: ${{ env.PROD_CRED }}  
+    - name: Deploy to production environment  
+      uses: azure/arm-deploy@1  
+      with:  
+        resource-group: ${{ env.PROD_RESOURCEGROUP }}  
+        template: ${{ env.TEMPLATE }}  
+        deployment-mode: 'incremental'  
+        app-name: ${{ env.PROD_RESOURCEGROUP }}  
