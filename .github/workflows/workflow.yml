@@ -28,7 +28,7 @@ env:
   PROD_CRED: ${{ secrets.AZURE_PROD_CRED }}
   TESTTYPE: 'Test'
   PRODTYPE: 'Production'
-  ENVTYPE: ${{inputs.environmentType}}
+  ENVTYPE: ${{ github.event_name == 'push' && env.TESTTYPE || env.PRODTYPE }}
 
 jobs:
   # Lint the Bicep file.
