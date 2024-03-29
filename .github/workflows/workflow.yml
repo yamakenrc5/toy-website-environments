@@ -21,7 +21,7 @@ permissions:
   contents: read
 
 env:
-  TEMPLATE: deploy/main.bicep
+  TEMPLATE: 'deploy/main.bicep'
   RESOURCEGROUP: ToyWebsiteTest
   PROD_RESOURCEGROUP: ToyWebsiteProduction
   TEST_CRED: ${{ secrets.AZURE_TEST_CRED }}
