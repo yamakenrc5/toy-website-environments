@@ -67,7 +67,7 @@ jobs:
           creds: ${{ env.PROD_CRED }}
       - name: Run WhatIf deployment for production
         run: |
-          az deployment group create --resource-group ${{ env.PROD_RESOURCEGROUP }} --template-file 'deploy/main.bicep' --parameters environmentType=${{ env.PRODTYPE }} --what-if
+          az deployment group create --resource-group ${{ env.PROD_RESOURCEGROUP }} --template-file ${{ github.workspace }}/${{ env.TEMPLATE }} --parameters environmentType=${{ env.PRODTYPE }} --what-if
 
   deploy-test:
     needs: whatif-production
