@@ -72,6 +72,7 @@ jobs:
       - name: Run WhatIf deployment for production
         uses: azure/arm-deploy@v1
         with:
+          ResourceGroup: ${{env.PROD_RESOURCEGROUP}}
           resource-group: ${{ env.PROD_RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
           deployment-mode: 'WhatIf'
