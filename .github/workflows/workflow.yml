@@ -10,11 +10,11 @@ on:
       environmentType:
         required: true
         type: string
-        default: 'Test' # Add a default value here
+        default: 'Test'
       resourceGroupName:
         required: true
         type: string
-        default: 'ToyWebSiteTest' # Add a default value here
+        default: 'ToyWebSiteTest'
 
 permissions:
   id-token: write
@@ -30,7 +30,6 @@ env:
   PRODTYPE: 'Production'
 
 jobs:
-  # Lint the Bicep file.
   lint:
     name: Lint code
     runs-on: ubuntu-latest
@@ -40,7 +39,6 @@ jobs:
         run: |
           az bicep build --file deploy/main.bicep
 
-  # Validate the Bicep file.
   validate:
     runs-on: ubuntu-latest
     needs: lint
@@ -50,7 +48,6 @@ jobs:
         name: Sign in to Azure
         with:
           creds: ${{ env.TEST_CRED }}
-          environmentType: ${{env.TESTTYPE}}
       - name: Run validation
         uses: azure/arm-deploy@v1
         with:
@@ -58,9 +55,8 @@ jobs:
           resourceGroupName: ${{ env.RESOURCEGROUP }}
           template: ${{env.TEMPLATE}}
           deploymentMode: 'Validate'
-          parameters: environmentType=${{ env.TESTTYPE}}
+          parameters: environmentType=${{ env.TESTTYPE }}, appName=${{ env.RESOURCEGROUP }}
 
-  # WhatIf deployment for production environment.
   whatif-production:
     runs-on: ubuntu-latest
     needs: validate
@@ -75,10 +71,8 @@ jobs:
           resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
           deploymentMode: 'WhatIf'
-          appName: ${{ env.PROD_RESOURCEGROUP }}
-          parameters: environmentType= ${{ env.PRODTYPE }}
+          parameters: environmentType= ${{ env.PRODTYPE }}, appName=${{ env.PROD_RESOURCEGROUP }}
 
-  # Deploy to the test environment.
   deploy-test:
     needs: whatif-production
     runs-on: ubuntu-latest
@@ -92,11 +86,9 @@ jobs:
         with:
           resourceGroupName: ${{ env.RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
-          deploymentMode: 'incremental'
-          appName: ${{ env.RESOURCEGROUP }}
-          parameters: environmentType= ${{ env.TESTTYPE }}
+          deploymentMode: 'Validate'
+          parameters: environmentType= ${{ env.TESTTYPE }}, appName=${{ env.RESOURCEGROUP }}
 
-  # Deploy to the production environment.
   deploy-production:
     needs: deploy-test
     runs-on: ubuntu-latest
@@ -110,11 +102,9 @@ jobs:
         with:
           resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
-          environmentType: ${{ env.PRODTYPE }}
-          deploymentMode: 'incremental'
-          appName: ${{ env.PROD_RESOURCEGROUP }}
+          deploymentMode: 'Validate'
+          parameters: environmentType= ${{ env.PRODTYPE }}, appName=${{ env.PROD_RESOURCEGROUP }}
 
-  # Run smoke tests.
   smoke-test:
     runs-on: ubuntu-latest
     needs: [deploy-test, deploy-production]
@@ -129,7 +119,6 @@ jobs:
             -CI
         name: Run smoke tests
 
-  # Rollback steps (added as the last step).
   rollback:
     runs-on: ubuntu-latest
     needs: smoke-test
