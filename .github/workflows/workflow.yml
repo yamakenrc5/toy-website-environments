@@ -58,7 +58,7 @@ jobs:
           resourceGroupName: ${{ env.RESOURCEGROUP }}
           template: ${{env.TEMPLATE}}
           deploymentMode: 'Validate'
-          parameters: environmentType= ${{ env.TESTTYPE}}
+          parameters: environmentType=${{ env.TESTTYPE}}
 
   # WhatIf deployment for production environment.
   whatif-production:
@@ -110,7 +110,7 @@ jobs:
         with:
           resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
-          parameters: environmentType= ${{ env.PRODTYPE }}
+          environmentType: ${{ env.PRODTYPE }}
           deploymentMode: 'incremental'
           appName: ${{ env.PROD_RESOURCEGROUP }}
 
