@@ -56,7 +56,7 @@ jobs:
         with:
           deploymentName: ${{ github.run_number }}
           resourceGroupName: ${{ env.RESOURCEGROUP }}
-          template: ./deploy/main.bicep
+          template: ${{env.TEMPLATE}}
           deploymentMode: 'Validate'
           parameters: environmentType=${{ env.TESTTYPE}}
 
@@ -70,7 +70,7 @@ jobs:
         with:
           creds: ${{ env.PROD_CRED }}
       - name: Run WhatIf deployment for production
-        uses: azure/arm-deploy@1
+        uses: azure/arm-deploy@v1
         with:
           resource-group: ${{ env.PROD_RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
@@ -88,7 +88,7 @@ jobs:
         with:
           creds: ${{ env.TEST_CRED }}
       - name: Deploy to test environment
-        uses: azure/arm-deploy@1
+        uses: azure/arm-deploy@v1
         with:
           resource-group: ${{ env.RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
@@ -106,7 +106,7 @@ jobs:
         with:
           creds: ${{ env.PROD_CRED }}
       - name: Deploy to production environment
-        uses: azure/arm-deploy@1
+        uses: azure/arm-deploy@v1
         with:
           resource-group: ${{ env.PROD_RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
