@@ -28,7 +28,6 @@ env:
   PROD_CRED: ${{ secrets.AZURE_PROD_CRED }}
   TESTTYPE: 'Test'
   PRODTYPE: 'Production'
-  ENVTYPE: ${{ github.event_name == 'push' && env.TESTTYPE || env.PRODTYPE }}
 
 jobs:
   # Lint the Bicep file.
@@ -58,6 +57,7 @@ jobs:
           resourceGroupName: ${{ env.RESOURCEGROUP }}
           template: ./deploy/main.bicep
           deploymentMode: 'Validate'
+          environmentType: ${{ env.TESTTYPE }}
 
   # WhatIf deployment for production environment.
   whatif-production:
@@ -75,7 +75,7 @@ jobs:
           template: ${{ env.TEMPLATE }}
           deployment-mode: 'WhatIf'
           app-name: ${{ env.PROD_RESOURCEGROUP }}
-          environmentType: ${{env.PRODTYPE}}
+          environmentType: ${{ env.PRODTYPE }}
 
   # Deploy to the test environment.
   deploy-test:
@@ -93,7 +93,7 @@ jobs:
           template: ${{ env.TEMPLATE }}
           deployment-mode: 'incremental'
           app-name: ${{ env.RESOURCEGROUP }}
-          environmentType: ${{env.TESTTYPE}}
+          environmentType: ${{ env.TESTTYPE }}
 
   # Deploy to the production environment.
   deploy-production:
