@@ -15,6 +15,7 @@ on:
       resourceGroupName:
         required: true
         type: string
+        default: 'ToyWebSiteTest' # Add a default value here
 
 permissions:
   id-token: write
