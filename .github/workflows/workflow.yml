@@ -74,9 +74,9 @@ jobs:
         with:
           resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
-          deployment-mode: 'WhatIf'
-          app-name: ${{ env.PROD_RESOURCEGROUP }}
-          environmentType: ${{ env.PRODTYPE }}
+          deploymentMode: 'WhatIf'
+          appName: ${{ env.PROD_RESOURCEGROUP }}
+          parameters: environmentType= ${{ env.PRODTYPE }}
 
   # Deploy to the test environment.
   deploy-test:
@@ -92,9 +92,9 @@ jobs:
         with:
           resourceGroupName: ${{ env.RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
-          deployment-mode: 'incremental'
-          app-name: ${{ env.RESOURCEGROUP }}
-          environmentType: ${{ env.TESTTYPE }}
+          deploymentMode: 'incremental'
+          appName: ${{ env.RESOURCEGROUP }}
+          parameters: environmentType=: ${{ env.TESTTYPE }}
 
   # Deploy to the production environment.
   deploy-production:
@@ -110,9 +110,9 @@ jobs:
         with:
           resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
-          environmentType: ${{ env.PRODTYPE }}
-          deployment-mode: 'incremental'
-          app-name: ${{ env.PROD_RESOURCEGROUP }}
+          parameters: environmentType=: ${{ env.PRODTYPE }}
+          deploymentMode: 'incremental'
+          appName: ${{ env.PROD_RESOURCEGROUP }}
 
   # Run smoke tests.
   smoke-test:
