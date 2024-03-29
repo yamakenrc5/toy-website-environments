@@ -66,8 +66,13 @@ jobs:
         with:
           creds: ${{ env.PROD_CRED }}
       - name: Run WhatIf deployment for production
-        run: |
-          az deployment group create --resource-group ${{ env.PROD_RESOURCEGROUP }} --template-file ${{ github.workspace }}/${{ env.TEMPLATE }} --parameters environmentType=${{ env.PRODTYPE }} --what-if
+        uses: azure/arm-deploy@v1
+        with:
+          resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
+          template: ${{ env.TEMPLATE }}
+          deploymentMode: 'WhatIf'
+          additionalArguments: --what-if
+          parameters: environmentType= ${{ env.PRODTYPE }}
 
   deploy-test:
     needs: whatif-production
