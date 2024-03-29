@@ -72,8 +72,7 @@ jobs:
       - name: Run WhatIf deployment for production
         uses: azure/arm-deploy@v1
         with:
-          ResourceGroup: ${{env.PROD_RESOURCEGROUP}}
-          resource-group: ${{ env.PROD_RESOURCEGROUP }}
+          resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
           deployment-mode: 'WhatIf'
           app-name: ${{ env.PROD_RESOURCEGROUP }}
@@ -91,7 +90,7 @@ jobs:
       - name: Deploy to test environment
         uses: azure/arm-deploy@v1
         with:
-          resource-group: ${{ env.RESOURCEGROUP }}
+          resourceGroupName: ${{ env.RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
           deployment-mode: 'incremental'
           app-name: ${{ env.RESOURCEGROUP }}
@@ -109,7 +108,7 @@ jobs:
       - name: Deploy to production environment
         uses: azure/arm-deploy@v1
         with:
-          resource-group: ${{ env.PROD_RESOURCEGROUP }}
+          resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
           environmentType: ${{ env.PRODTYPE }}
           deployment-mode: 'incremental'
