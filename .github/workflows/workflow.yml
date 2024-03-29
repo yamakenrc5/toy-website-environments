@@ -25,7 +25,7 @@ env:
   PROD_RESOURCEGROUP: ToyWebsiteProduction  
   TEST_CRED: ${{ secrets.AZURE_TEST_CRED }}  
   PROD_CRED: ${{ secrets.AZURE_PROD_CRED }} 
-  ENVIRONMENTTYPE: 'Test'
+  TESTTYPE: 'Test'
   PRODTYPE: 'Production'
   
 jobs:  
@@ -51,7 +51,7 @@ jobs:
       name: Sign in to Azure  
       with:  
         creds: ${{ env.TEST_CRED }}  
-    - if: env.ENVIRONMENTTYPE != 'Production'  
+    - if: environmentType != ${{env.PRODTYPE}} 
       uses: azure/arm-deploy@v1  
       name: Run preflight validation  
       with:  
@@ -59,10 +59,10 @@ jobs:
         resourceGroupName: ${{ env.RESOURCEGROUP }}  
         template: ./deploy/main.bicep  
         parameters: >  
-          environmentType: ${{env.ENVIRONMENTTYPE}}
+          environmentType: ${{env.TESTTYPE}}
         deploymentMode: Validate
-        env.ENVIRONMENTTYPE: ${{env.PRODTYPE}}
-    - if: env.ENVIRONMENTTYPE != env.PRODTYPE  
+        environmentType : ${{env.PRODTYPE}}
+    - if: environmentType == ${{env.PRODTYPE  }}
       uses: azure/arm-deploy@v1  
       name: Run what-if  
       with:  
@@ -103,7 +103,8 @@ jobs:
       uses: azure/arm-deploy@1  
       with:  
         resource-group: ${{ env.PROD_RESOURCEGROUP }}  
-        template: ${{ env.TEMPLATE }}  
+        template: ${{ env.TEMPLATE }}
+        environmentType: ${{env.PRODTYPE}}  
         deployment-mode: 'incremental'  
         app-name: ${{ env.PROD_RESOURCEGROUP }}  
   smoke-test:
