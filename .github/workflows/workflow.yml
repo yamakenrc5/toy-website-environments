@@ -57,7 +57,7 @@ jobs:
           resourceGroupName: ${{ env.RESOURCEGROUP }}
           template: ./deploy/main.bicep
           deploymentMode: 'Validate'
-          environmentType: ${{ env.TESTTYPE }}
+
 
   # WhatIf deployment for production environment.
   whatif-production:
