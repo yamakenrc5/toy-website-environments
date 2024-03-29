@@ -50,6 +50,7 @@ jobs:
         name: Sign in to Azure
         with:
           creds: ${{ env.TEST_CRED }}
+          environmentType: ${{env.TESTTYPE}}
       - name: Run validation
         uses: azure/arm-deploy@v1
         with:
