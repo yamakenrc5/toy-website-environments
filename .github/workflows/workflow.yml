@@ -65,20 +65,12 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ env.PROD_CRED }}
-      - name: Run preflight validation
+      - name: Run what-if
         uses: azure/arm-deploy@v1
         with:
           deploymentName: ${{ github.run_number }}
           resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
-          template: ./deploy/main.bicep
-          parameters: environmentType=${{ inputs.environmentType }}
-          deploymentMode: Validate
-      - name: Run preflight validation
-        uses: azure/arm-deploy@v1
-        with:
-          deploymentName: ${{ github.run_number }}
-          resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
-          template: ./deploy/main.bicep
+          template: ./deploy/main.bicep ##somehow the path is not understood
           parameters: environmentType=${{ env.PRODTYPE }}
           deploymentMode: Validate
           failOnStdErr: false
