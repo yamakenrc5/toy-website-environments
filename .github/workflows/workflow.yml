@@ -72,7 +72,7 @@ jobs:
         with:  
             deploymentName: ${{ github.run_number }}  
             resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}  
-            template: ./deploy/main.bicep'
+            template: ./deploy/main.bicep
             parameters: environmentType= "${{ env.PRODTYPE }}"  
             failOnStdErr: false  
             additionalArguments: --what-if  
