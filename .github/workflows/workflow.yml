@@ -76,4 +76,56 @@ jobs:
             parameters: environmentType=${{ env.PRODTYPE }}
             failOnStdErr: false  
             additionalArguments: --what-if  
-          
+  deploy-test:
+    needs: whatif-production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ env.TEST_CRED }}
+      - name: Deploy to test environment
+        uses: azure/arm-deploy@v1
+        with:
+          resourceGroupName: ${{ env.RESOURCEGROUP }}
+          template: ${{ env.TEMPLATE }}
+          deploymentMode: 'Validate'
+          parameters: environmentType= ${{ env.TESTTYPE }}
+
+  deploy-production:
+    needs: deploy-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ env.PROD_CRED }}
+      - name: Deploy to production environment
+        uses: azure/arm-deploy@v1
+        with:
+          resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
+          template: ${{ env.TEMPLATE }}
+          deploymentMode: 'Validate'
+          parameters: environmentType= ${{ env.PRODTYPE }}
+
+  smoke-test:
+    runs-on: ubuntu-latest
+    needs: [deploy-test, deploy-production]
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          $container = New-PesterContainer `
+            -Path 'deploy/Website.Tests.ps1' `
+            -Data @{ HostName = '${{ needs.deploy.outputs.appServiceAppHostName }}' }
+          Invoke-Pester `
+            -Container $container `
+            -CI
+        name: Run smoke tests
+
+  rollback:
+    runs-on: ubuntu-latest
+    needs: smoke-test
+    if: ${{ always() && needs.smoke-test.result == 'failure' }}
+    steps:
+      - run: |
+          echo "Performing rollback steps..."         
