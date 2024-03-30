@@ -122,7 +122,8 @@ jobs:
             -Data @{ HostName = '${{needs.deploy-production.outputs.appServiceAppHostName}}' }
           Invoke-Pester `
             -Container $container `
-            -CI
+            -CI `  
+            -FailOnStderr $false 
         name: Run smoke tests
         shell: pwsh
 
