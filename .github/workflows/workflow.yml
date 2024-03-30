@@ -57,21 +57,24 @@ jobs:
           deploymentMode: 'Validate'
           parameters: environmentType=${{ env.TESTTYPE }}
 
-  whatif-production:
-    runs-on: ubuntu-latest
-    needs: validate
-    steps:
-      - name: Login to Azure ##this step is okay
-        uses: azure/login@v1
-        with:
-          creds: ${{ env.PROD_CRED }}
-      - name: Run what-if
-        uses: azure/arm-deploy@v1
-        with:
-          deploymentName: ${{ github.run_number }}
-          resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
-          template: ./deploy/main.bicep ##somehow the path is not understood
-          parameters: environmentType=${{ env.PRODTYPE }}
-          deploymentMode: Validate
-          failOnStdErr: false
-          additionalArguments: --what-if
+  whatif-production:  
+    runs-on: ubuntu-latest  
+    needs: validate  
+    steps:  
+      - name: Login to Azure  
+        uses: azure/login@v1  
+        with:  
+          creds: ${{ env.PROD_CRED }}  
+      - name: Run what-if  
+        uses: azure/arm-deploy@v1  
+        with:  
+          deploymentName: ${{ github.run_number }}  
+          resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}  
+          template: ${{ env.TEMPLATE }}  
+          parameters: |  
+            {  
+              "environmentType": "${{ env.PRODTYPE }}"  
+            }  
+          failOnStdErr: false  
+          additionalArguments: --what-if  
+        
