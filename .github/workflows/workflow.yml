@@ -116,9 +116,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: |
-          Install-Module Pester -Force
           $container = New-PesterContainer `
-            -Path 'deploy/Website.Tests.ps1' `
+            -Path './deploy/Website.Tests.ps1' `
             -Data @{ HostName = '${{ needs.deploy.outputs.appServiceAppHostName }}' }
           Invoke-Pester `
             -Container $container `
