@@ -26,8 +26,8 @@ env:
   PROD_RESOURCEGROUP: ToyWebsiteProduction
   TEST_CRED: ${{ secrets.AZURE_TEST_CRED }}
   PROD_CRED: ${{ secrets.AZURE_PROD_CRED }}
-  TESTTYPE: 'Test'
-  PRODTYPE: 'Production'
+  TESTTYPE: Test
+  PRODTYPE: Production
 
 jobs:
   lint:
@@ -73,7 +73,7 @@ jobs:
             deploymentName: ${{ github.run_number }}  
             resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}  
             template: ${{env.TEMPLATE}}
-            parameters: environmentType=${{ env.TESTTYPE }}
+            parameters: environmentType=${{ env.PRODTYPE }}
             failOnStdErr: false  
             additionalArguments: --what-if  
           
