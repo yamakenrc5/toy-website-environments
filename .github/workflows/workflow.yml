@@ -108,7 +108,7 @@ jobs:
           resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
           deploymentMode: 'Validate'
-          parameters: environmentType= ${{ env.PRODTYPE }}
+          parameters: environmentType=${{ env.PRODTYPE }}
 
   smoke-test:
     runs-on: ubuntu-latest
