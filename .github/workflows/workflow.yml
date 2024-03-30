@@ -91,7 +91,7 @@ jobs:
           resourceGroupName: ${{ env.RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
           deploymentMode: 'Validate'
-          parameters: environmentType= ${{ env.TESTTYPE }}
+          parameters: environmentType=${{ env.TESTTYPE }}
 
   deploy-production:
     needs: deploy-test
