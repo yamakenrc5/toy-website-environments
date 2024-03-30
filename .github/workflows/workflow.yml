@@ -67,13 +67,14 @@ jobs:
         name: Login to Azure
         with:  
           creds: ${{ env.PROD_CRED }}  
-      - name: Run what-if  
-        uses: azure/arm-deploy@v1  
+      - uses: actions/checkout@v3
+      - uses: azure/arm-deploy@v1  
+        name: Run what-if  
         with:  
-          deploymentName: ${{ github.run_number }}  
-          resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}  
-          template: ${{ env.TEMPLATE }}  
-          parameters: environmentType= "${{ env.PRODTYPE }}"  
-          failOnStdErr: false  
-          additionalArguments: --what-if  
-        
+            deploymentName: ${{ github.run_number }}  
+            resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}  
+            template: ${{ env.TEMPLATE }}  
+            parameters: environmentType= "${{ env.PRODTYPE }}"  
+            failOnStdErr: false  
+            additionalArguments: --what-if  
+          
