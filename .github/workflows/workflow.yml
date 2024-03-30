@@ -22,7 +22,7 @@ permissions:
 
 env:
   TEMPLATE: ./deploy/main.bicep
-  TESTSCRIPT: ./deploy/Website.Tests.ps1
+  TESTSCRIPT: deploy/Website.Tests.ps1
   RESOURCEGROUP: ToyWebsiteTest
   PROD_RESOURCEGROUP: ToyWebsiteProduction
   TEST_CRED: ${{ secrets.AZURE_TEST_CRED }}
@@ -119,7 +119,7 @@ jobs:
       - run: |
           $container = New-PesterContainer `
             -Path "${{ env.TESTSCRIPT }}" `
-            -Data @{ HostName = '${{ needs.deploy.outputs.appServiceAppHostName }}' }
+            -Data @{ HostName = '${{needs.deploy.outputs.appServiceAppHostName}}' }
           Invoke-Pester `
             -Container $container `
             -CI
