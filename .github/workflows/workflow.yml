@@ -89,7 +89,7 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           resourceGroupName: ${{ env.RESOURCEGROUP }}
-          template: ${{ env.TEMPLATE }}
+          template: ${{env.TEMPLATE}}
           deploymentMode: 'Validate'
           parameters: environmentType=${{ env.TESTTYPE }}
 
