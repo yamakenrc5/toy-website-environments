@@ -73,7 +73,7 @@ jobs:
             deploymentName: ${{ github.run_number }}  
             resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}  
             template: ${{env.TEMPLATE}}
-            parameters: environmentType= ${{ env.PRODTYPE }} 
+            parameters: environmentType=${{ env.TESTTYPE }}
             failOnStdErr: false  
             additionalArguments: --what-if  
           
