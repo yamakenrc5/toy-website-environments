@@ -48,8 +48,9 @@ jobs:
         name: Sign in to Azure
         with:
           creds: ${{ env.TEST_CRED }}
-      - name: Run validation
-        uses: azure/arm-deploy@v1
+      - uses: actions/checkout@v3
+      - uses: azure/arm-deploy@v1
+        name: Run validation
         with:
           deploymentName: ${{ github.run_number }}
           resourceGroupName: ${{ env.RESOURCEGROUP }}
@@ -72,10 +73,7 @@ jobs:
           deploymentName: ${{ github.run_number }}  
           resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}  
           template: ${{ env.TEMPLATE }}  
-          parameters: |  
-            {  
-              "environmentType": "${{ env.PRODTYPE }}"  
-            }  
+          parameters: environmentType= "${{ env.PRODTYPE }}"  
           failOnStdErr: false  
           additionalArguments: --what-if  
         
