@@ -124,7 +124,6 @@ jobs:
             -Container $container `
             -CI
         name: Run smoke tests
-        with: failOnStdErr: false
         shell: pwsh
 
   rollback:
