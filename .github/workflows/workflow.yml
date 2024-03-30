@@ -84,6 +84,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ env.TEST_CRED }}
+      - uses: actions/checkout@v3
       - name: Deploy to test environment
         uses: azure/arm-deploy@v1
         with:
@@ -100,6 +101,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ env.PROD_CRED }}
+      - uses: actions/checkout@v3
       - name: Deploy to production environment
         uses: azure/arm-deploy@v1
         with:
