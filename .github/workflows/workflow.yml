@@ -21,7 +21,7 @@ permissions:
   contents: read
 
 env:
-  TEMPLATE: './deploy/main.bicep'
+  TEMPLATE: ./deploy/main.bicep
   RESOURCEGROUP: ToyWebsiteTest
   PROD_RESOURCEGROUP: ToyWebsiteProduction
   TEST_CRED: ${{ secrets.AZURE_TEST_CRED }}
@@ -73,7 +73,7 @@ jobs:
             deploymentName: ${{ github.run_number }}  
             resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}  
             template: ./deploy/main.bicep
-            parameters: environmentType= "${{ env.PRODTYPE }}"  
+            parameters: environmentType= ${{ env.PRODTYPE }} 
             failOnStdErr: false  
             additionalArguments: --what-if  
           
