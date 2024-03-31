@@ -42,6 +42,7 @@ env:
   TESTTYPE: Test
   PRODTYPE: Production
   DEPLOYMODE: Validate
+  REVURL: https://api.contoso.com/reviews
 
 jobs:
   lint:
@@ -75,8 +76,8 @@ jobs:
           template: ${{ env.TEMPLATE }}
           parameters: >
             environmentType=${{env.TESTTYPE}}
-            reviewApiUrl= ${{ inputs.reviewApiUrl }}
-            reviewApiKey= ${{ secrets.REVIEW_API_KEY_TEST }}
+            reviewApiUrl=${{env.REVURL }}
+            reviewApiKey=${{ secrets.REVIEW_API_KEY_TEST }}
       
   whatif-production:  
     runs-on: ubuntu-latest  
@@ -97,9 +98,9 @@ jobs:
             resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
             template: ${{ env.TEMPLATE }} 
             parameters: >             
-              environmentType= ${{ env.PRODTYPE }}
-              reviewApiUrl= ${{ inputs.reviewApiUrl }}
-              reviewApiKey= ${{ secrets.REVIEW_API_PRODUCTION }}
+              environmentType=${{ env.PRODTYPE }}
+              reviewApiUrl=${{ env.REVURL }}
+              reviewApiKey=${{ secrets.REVIEW_API_PRODUCTION }}
   deploy-test:
     needs: whatif-production
     runs-on: ubuntu-latest
@@ -116,9 +117,9 @@ jobs:
         with:
           resourceGroupName: ${{ env.RESOURCEGROUP }}
           parameters: >
-            environmentType= ${{env.TESTTYPE}}
-            reviewApiUrl= https://sandbox.contoso.com/reviews
-            reviewApiKey= ${{ secrets.REVIEW_API_KEY_PRODUCTION }}
+            environmentType=${{env.TESTTYPE}}
+            reviewApiUrl=${{env.REVURL}}
+            reviewApiKey=${{ secrets.REVIEW_API_KEY_PRODUCTION }}
 
   deploy-production:
     needs: deploy-test
@@ -136,8 +137,8 @@ jobs:
           resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
           parameters: >
-            reviewApiUrl= https://api.contoso.com/reviews
-            reviewApiKey: ${{ secrets.REVIEW_API_KEY_PRODUCTION }}
+            reviewApiUrl=${{env.REVURL}}
+            reviewApiKey=${{ secrets.REVIEW_API_KEY_PRODUCTION }}
       - name: Rollback action
         run: |
           echo "Performing rollback steps..."        ## just echo-ing.
