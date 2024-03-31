@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint
     env:
-      failOnStdErr: false  ##main.bicep emits errors
+      #failOnStdErr: false  ##main.bicep emits errors
       deploymentMode: Validate
       deploymentName: ${{ github.run_number }}
       reviewApiUrl: ${{ inputs.reviewApiUrl }}
