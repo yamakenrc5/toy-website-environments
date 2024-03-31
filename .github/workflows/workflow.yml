@@ -100,12 +100,12 @@ jobs:
             reviewApiUrl=${{ env.REVURL }}
             reviewApiKey=${{ secrets.REVIEW_API_PRODUCTION }}
 
-            deploy-test:
+  deploy-test:
     needs: whatif-production
     runs-on: ubuntu-latest
     env:
-      creds: ${{ secrets.AZURE_TEST_CRED }}
       deploymentMode: Validate
+      creds: ${{ secrets.AZURE_TEST_CRED }}
 
     steps:
       - name: Login to Azure
