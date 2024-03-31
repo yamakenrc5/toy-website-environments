@@ -50,11 +50,19 @@ jobs:
       - uses: actions/checkout@v3
       - name: Lint code
         run: |
-          az bicep build --file deploy/main.bicep
+          az bicep build --file ${{ env.TEMPLATE }}
 
   validate:
     runs-on: ubuntu-latest
     needs: lint
+    env:
+      deploymentName: ${{ github.run_number }}
+      resourceGroupName: ${{ env.RESOURCEGROUP }}
+      template: ${{ env.TEMPLATE }}
+      environmentType: ${{ env.TESTTYPE }}
+      reviewApiUrl: ${{ inputs.reviewApiUrl }}
+      reviewApiKey: ${{ secrets.REVIEW_API_KEY_TEST }}
+      deploymentMode: Validate
     steps:
       - uses: actions/checkout@v3
       - uses: azure/login@v1
@@ -63,19 +71,18 @@ jobs:
           creds: ${{ env.TEST_CRED }}
       - uses: azure/arm-deploy@v1
         name: Run preflight validation
-        with:
-          deploymentName: ${{ github.run_number }}
-          resourceGroupName: ${{ env.RESOURCEGROUP }}
-          template: ${{ env.TEMPLATE }}
-          deploymentMode: Validate
-          parameters: > 
-            environmentType=${{ env.TESTTYPE }}
-            reviewApiUrl=${{ inputs.reviewApiUrl }}
-            reviewApiKey=${{ secrets.REVIEW_API_KEY_TEST}}
 
   whatif-production:  
     runs-on: ubuntu-latest  
     needs: validate  
+    env:
+      deploymentName: ${{ github.run_number }}
+      resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
+      template: ${{ env.TEMPLATE }}
+      environmentType: ${{ env.PRODTYPE }}
+      reviewApiUrl: ${{ inputs.reviewApiUrl }}
+      reviewApiKey: ${{ secrets.REVIEW_API_PRODUCTION }}
+      deploymentMode: Validate
     steps:  
       - uses: azure/login@v1  
         name: Login to Azure
@@ -86,48 +93,41 @@ jobs:
         with:  
             failOnStdErr: false  
             additionalArguments: --what-if  
-            deploymentName: ${{ github.run_number }}  
-            resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}  
-            template: ${{env.TEMPLATE}}
-            parameters: >
-              environmentType=${{ env.PRODTYPE }}
-              reviewApiUrl=${{ inputs.reviewApiUrl }}
-              reviewApiKey=${{ secrets.REVIEW_API_PRODUCTION }}
 
   deploy-test:
     needs: whatif-production
     runs-on: ubuntu-latest
+    env:
+      environmentType: ${{ env.TESTTYPE }}
+      resourceGroupName: ${{ env.RESOURCEGROUP }}
+      reviewApiUrl: https://sandbox.contoso.com/reviews
+      creds: ${{ env.TEST_CRED }}
+      reviewApiKey: ${{ secrets.REVIEW_API_KEY_PRODUCTION }}
+      deploymentMode: Validate
     steps:
       - name: Login to Azure
         uses: azure/login@v1
       - uses: actions/checkout@v3
       - name: Deploy to test environment
         uses: azure/arm-deploy@v1
-        with:
-          environmentType: ${{env.TESTTYPE}}
-          resourceGroupName: ${{env.RESOURCEGROUP}}
-          reviewApiUrl: https://sandbox.contoso.com/reviews
-          deploymentMode: 'Validate'
-          reviewApiUrl: ${{ inputs.reviewApiUrl }}
-          creds: ${{env.TEST_CRED}} 
-          reviewApiKey: ${{ secrets.REVIEW_API_KEY_PRODUCTION }}
 
   deploy-production:
     needs: deploy-test
     runs-on: ubuntu-latest
+    env:
+      environmentType: ${{ env.PRODTYPE }}
+      resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
+      template: ${{ env.TEMPLATE }}
+      reviewApiUrl: https://api.contoso.com/reviews
+      creds: ${{ env.PROD_CRED }}
+      reviewApiKey: ${{ secrets.REVIEW_API_KEY_PRODUCTION }}
+      deploymentMode: Validate
     steps:
       - name: Login to Azure
         uses: azure/login@v1
       - uses: actions/checkout@v3
       - name: Deploy to production environment
         uses: azure/arm-deploy@v1
-        with:
-          resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
-          template: ${{ env.TEMPLATE }}
-          deploymentMode: 'Validate'
-          reviewApiUrl: https://api.contoso.com/reviews
-          creds: ${{ env.PROD_CRED }}
-          reviewApiKey: ${{ secrets.REVIEW_API_KEY_PRODUCTION }}
 
   smoke-test:
     runs-on: ubuntu-latest
@@ -136,7 +136,7 @@ jobs:
       - uses: actions/checkout@v3
       - run: |
           $container = New-PesterContainer `
-            -Path './deploy/Website.Tests.ps1' `
+            -Path ${{ env.TESTSCRIPT }} `
             -Data @{ HostName = '${{needs.deploy-production.outputs.appServiceAppHostName}}' }
           Invoke-Pester `
             -Container $container `
