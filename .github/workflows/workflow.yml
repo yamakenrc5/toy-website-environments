@@ -10,11 +10,13 @@ on:
       environmentType:
         required: true
         type: string
-        default: 'Test'
+        default: Test
       resourceGroupName:
         required: true
         type: string
-        default: 'ToyWebSiteTest'
+        default: ToyWebSiteTest
+      creds:
+        required: true
 
 permissions:
   id-token: write
@@ -22,7 +24,7 @@ permissions:
 
 env:
   TEMPLATE: ./deploy/main.bicep
-  TESTSCRIPT: './deploy/Website.Tests.ps1'
+  TESTSCRIPT: ./deploy/Website.Tests.ps1
   RESOURCEGROUP: ToyWebsiteTest
   PROD_RESOURCEGROUP: ToyWebsiteProduction
   TEST_CRED: ${{ secrets.AZURE_TEST_CRED }}
@@ -133,4 +135,4 @@ jobs:
     if: ${{ always() && needs.smoke-test.result == 'failure' }}
     steps:
       - run: |
-          echo "Performing rollback steps..."         
+          echo "Performing rollback steps..."        ## just echo-ing. 
