@@ -41,6 +41,7 @@ env:
   PROD_CRED: ${{ secrets.AZURE_PROD_CRED }}
   TESTTYPE: Test
   PRODTYPE: Production
+  DEPLOYMODE: Validate
 
 jobs:
   lint:
@@ -56,6 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint
     env:
+      failOnStdErr: false  ##main.bicep emits errors
       deploymentMode: Validate
       deploymentName: ${{ github.run_number }}
       reviewApiUrl: ${{ inputs.reviewApiUrl }}
@@ -71,16 +73,19 @@ jobs:
         with:
           resourceGroupName: ${{ env.RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
-          environmentType: ${{ env.TESTTYPE }}
-
+          parameters: >
+            environmentType = ${{env.TESTTYPE}}
+            reviewApiUrl= ${{ inputs.reviewApiUrl }}
+            reviewApiKey= ${{ secrets.REVIEW_API_KEY_TEST }}
+      
   whatif-production:  
     runs-on: ubuntu-latest  
     needs: validate  
     env:
+      failOnStdErr: false  
+      additionalArguments: --what-if  
       deploymentMode: Validate
       deploymentName: ${{ github.run_number }}
-      reviewApiUrl: ${{ inputs.reviewApiUrl }}
-      reviewApiKey: ${{ secrets.REVIEW_API_PRODUCTION }}
     steps:  
       - uses: azure/login@v1  
         name: Login to Azure
@@ -89,20 +94,19 @@ jobs:
       - uses: azure/arm-deploy@v1  
         name: Run what-if  
         with:  
-            failOnStdErr: false  
-            additionalArguments: --what-if  
             resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
-            template: ${{ env.TEMPLATE }}
-            environmentType: ${{ env.PRODTYPE }}
-
+            template: ${{ env.TEMPLATE }} 
+            parameters: >             
+              environmentType= ${{ env.PRODTYPE }}
+              reviewApiUrl= ${{ inputs.reviewApiUrl }}
+              reviewApiKey= ${{ secrets.REVIEW_API_PRODUCTION }}
   deploy-test:
     needs: whatif-production
     runs-on: ubuntu-latest
     env:
       creds: ${{ secrets.AZURE_TEST_CRED }}
       deploymentMode: Validate
-      reviewApiUrl: https://sandbox.contoso.com/reviews
-      reviewApiKey: ${{ secrets.REVIEW_API_KEY_PRODUCTION }}
+
     steps:
       - name: Login to Azure
         uses: azure/login@v1
@@ -110,17 +114,18 @@ jobs:
       - name: Deploy to test environment
         uses: azure/arm-deploy@v1
         with:
-          environmentType: ${{ env.TESTTYPE }}
           resourceGroupName: ${{ env.RESOURCEGROUP }}
+          parameters: >
+            environmentType= ${{env.TESTTYPE}}
+            reviewApiUrl= https://sandbox.contoso.com/reviews
+            reviewApiKey= ${{ secrets.REVIEW_API_KEY_PRODUCTION }}
 
   deploy-production:
     needs: deploy-test
     runs-on: ubuntu-latest
     env:
-      creds: ${{ secrets.AZURE_PROD_CRED }}
       deploymentMode: Validate
-      reviewApiUrl: https://api.contoso.com/reviews
-      reviewApiKey: ${{ secrets.REVIEW_API_KEY_PRODUCTION }}
+      creds: ${{ secrets.AZURE_PROD_CRED }}
     steps:
       - name: Login to Azure
         uses: azure/login@v1
@@ -130,6 +135,9 @@ jobs:
         with:
           resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
+          parameters: >
+            reviewApiUrl= https://api.contoso.com/reviews
+            reviewApiKey: ${{ secrets.REVIEW_API_KEY_PRODUCTION }}
       - name: Rollback action
         run: |
           echo "Performing rollback steps..."        ## just echo-ing.
