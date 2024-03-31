@@ -61,7 +61,6 @@ jobs:
         name: Sign in to Azure
         with:
           creds: ${{ env.TEST_CRED }}
-      - uses: actions/checkout@v3
       - uses: azure/arm-deploy@v1
         name: Run preflight validation
         with:
@@ -82,7 +81,6 @@ jobs:
         name: Login to Azure
         with:  
           creds: ${{ env.PROD_CRED }}  
-      - uses: actions/checkout@v3
       - uses: azure/arm-deploy@v1  
         name: Run what-if  
         with:  
@@ -96,46 +94,41 @@ jobs:
               reviewApiUrl=${{ inputs.reviewApiUrl }}
               reviewApiKey=${{ secrets.REVIEW_API_PRODUCTION }}
 
-deploy-test:
+  deploy-test:
     needs: whatif-production
     runs-on: ubuntu-latest
-    with:
-      environmentType: ${{env.PRODTYPE}}
-      resourceGroupName: ${{env.RESOURCEGROUP}}
-      reviewApiUrl: https://sandbox.contoso.com/reviews
-      deploymentMode: 'Validate'
-      reviewApiUrl: ${{ inputs.reviewApiUrl }}
-
-    secrets:
-      creds: ${{env.TEST_CRED}} 
-      reviewApiKey: ${{ secrets.REVIEW_API_KEY_PRODUCTION }}
-
     steps:
       - name: Login to Azure
         uses: azure/login@v1
       - uses: actions/checkout@v3
       - name: Deploy to test environment
         uses: azure/arm-deploy@v1
- 
-deploy-production:
+        with:
+          environmentType: ${{env.TESTTYPE}}
+          resourceGroupName: ${{env.RESOURCEGROUP}}
+          reviewApiUrl: https://sandbox.contoso.com/reviews
+          deploymentMode: 'Validate'
+          reviewApiUrl: ${{ inputs.reviewApiUrl }}
+          creds: ${{env.TEST_CRED}} 
+          reviewApiKey: ${{ secrets.REVIEW_API_KEY_PRODUCTION }}
+
+  deploy-production:
     needs: deploy-test
     runs-on: ubuntu-latest
-    with:
-      resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
-      template: ${{ env.TEMPLATE }}
-      deploymentMode: 'Validate'
-      reviewApiUrl: https://api.contoso.com/reviews
-
-    secrets:
-      creds: ${{ env.PROD_CRED }}
-      reviewApiKey: ${{ secrets.REVIEW_API_KEY_PRODUCTION }}
     steps:
       - name: Login to Azure
         uses: azure/login@v1
       - uses: actions/checkout@v3
       - name: Deploy to production environment
         uses: azure/arm-deploy@v1
- 
+        with:
+          resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
+          template: ${{ env.TEMPLATE }}
+          deploymentMode: 'Validate'
+          reviewApiUrl: https://api.contoso.com/reviews
+          creds: ${{ env.PROD_CRED }}
+          reviewApiKey: ${{ secrets.REVIEW_API_KEY_PRODUCTION }}
+
   smoke-test:
     runs-on: ubuntu-latest
     needs: [deploy-production]
@@ -158,4 +151,4 @@ deploy-production:
     if: ${{ always() && needs.smoke-test.result == 'failure' }}
     steps:
       - run: |
-          echo "Performing rollback steps..."        ## just echo-ing. 
+          echo "Performing rollback steps..."        ## just echo-ing.
