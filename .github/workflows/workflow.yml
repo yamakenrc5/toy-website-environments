@@ -1,22 +1,32 @@
-name: deploy-toy-website-environments
-concurrency: toy-company
-
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-    inputs:
-      environmentType:
-        required: true
-        type: string
-        default: Test
-      resourceGroupName:
-        required: true
-        type: string
-        default: ToyWebSiteTest
-      creds:
-        required: true
+name: deploy-toy-website-environments  
+concurrency: toy-company  
+  
+on:  
+  push:  
+    branches:  
+      - main  
+  workflow_dispatch:  
+    inputs:  
+      environmentType:  
+        required: true  
+        type: string  
+        default: Test  
+      resourceGroupName:  
+        required: true  
+        type: string  
+        default: ToyWebSiteTest  
+      creds:  
+        required: true  
+      reviewApiUrl:  
+        required: true  
+        type: string  
+    secrets:  
+      cred:  
+        required: true  
+      reviewApiKey:  
+        required: true  
+      reviewApiUrl:  
+        required: true  
 
 permissions:
   id-token: write
@@ -53,13 +63,16 @@ jobs:
           creds: ${{ env.TEST_CRED }}
       - uses: actions/checkout@v3
       - uses: azure/arm-deploy@v1
-        name: Run validation
+        name: Run preflight validation
         with:
           deploymentName: ${{ github.run_number }}
           resourceGroupName: ${{ env.RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
-          deploymentMode: 'Validate'
-          parameters: environmentType=${{ env.TESTTYPE }}
+          deploymentMode: Validate
+          parameters: > 
+            environmentType=${{ env.TESTTYPE }}
+            reviewApiUrl=${{ inputs.reviewApiUrl }}
+            reviewApiKey=${{ secrets.reviewApiKey }}
 
   whatif-production:  
     runs-on: ubuntu-latest  
@@ -73,13 +86,17 @@ jobs:
       - uses: azure/arm-deploy@v1  
         name: Run what-if  
         with:  
+            failOnStdErr: false  
+            additionalArguments: --what-if  
             deploymentName: ${{ github.run_number }}  
             resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}  
             template: ${{env.TEMPLATE}}
-            parameters: environmentType=${{ env.PRODTYPE }}
-            failOnStdErr: false  
-            additionalArguments: --what-if  
-  deploy-test:
+            parameters: >
+              environmentType=${{ env.PRODTYPE }}
+              reviewApiUrl=${{ inputs.reviewApiUrl }}
+              reviewApiKey=${{ secrets.reviewApiKey }}
+
+deploy-test:
     needs: whatif-production
     runs-on: ubuntu-latest
     steps:
