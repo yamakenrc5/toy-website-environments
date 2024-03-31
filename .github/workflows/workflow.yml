@@ -95,6 +95,7 @@ jobs:
           additionalArguments: --what-if  
           failOnStdErr: false  
           resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
+          template: ${{env.TEMPLATE}}
           parameters: >             
             environmentType=${{ env.PRODTYPE }}
             reviewApiUrl=${{ env.REVURL }}
@@ -105,16 +106,17 @@ jobs:
     runs-on: ubuntu-latest
     env:
       deploymentMode: Validate
-      creds: ${{ secrets.AZURE_TEST_CRED }}
-
     steps:
       - name: Login to Azure
         uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_TEST_CRED }}
       - uses: actions/checkout@v3
       - name: Deploy to test environment
         uses: azure/arm-deploy@v1
         with:
           resourceGroupName: ${{ env.RESOURCEGROUP }}
+          template: ${{env.TEMPLATE}}
           parameters: >
             environmentType=${{env.TESTTYPE}}
             reviewApiUrl=${{env.REVURL}}
