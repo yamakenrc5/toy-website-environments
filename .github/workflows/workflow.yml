@@ -142,8 +142,8 @@ jobs:
           resourceGroupName: ${{ env.PROD_RESOURCEGROUP }}
           template: ${{ env.TEMPLATE }}
           parameters: >
-          environmentType=${{env.PRODTYPE}}
-          reviewApiUrl=${{env.REVURL}}
+            environmentType=${{env.PRODTYPE}}
+            reviewApiUrl=${{env.REVURL}}
             reviewApiKey=${{ secrets.REVIEW_API_KEY_PRODUCTION }}
       - name: Rollback action
         run: |
